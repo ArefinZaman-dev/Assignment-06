@@ -1,10 +1,21 @@
-const HomePage = () => {
+import Banner from "@/components/homepage/Banner";
+import Workouts from "@/components/homepage/Workouts";
+import { Workout } from "@/types/workout.type";
+
+const workoutApi =
+  "https://api.abcz.workers.dev/api/fitlog";
+
+const HomePage = async () => {
+  const res = await fetch(workoutApi);
+
+  const workouts: Workout[] = await res.json();
+
   return (
-    <div className="flex min-h-[70vh] items-center justify-center">
-      <h1 className="text-5xl font-black">
-        FITLOG
-      </h1>
-    </div>
+    <main>
+      <Banner />
+
+      <Workouts workouts={workouts} />
+    </main>
   );
 };
 
