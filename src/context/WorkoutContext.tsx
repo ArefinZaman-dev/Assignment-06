@@ -17,6 +17,8 @@ type WorkoutContextType = {
 
   saved: Workout[];
 
+  done: number[];
+
 
   addToPlan: (
     workout: Workout
@@ -38,7 +40,14 @@ type WorkoutContextType = {
   ) => void;
 
 
+  markAsDone: (
+    id: number
+  ) => void;
+
+
 };
+
+
 
 
 
@@ -48,6 +57,8 @@ const WorkoutContext =
   createContext<WorkoutContextType | undefined>(
     undefined
   );
+
+
 
 
 
@@ -67,21 +78,18 @@ export const WorkoutProvider = ({
     useState<Workout[]>(() => {
 
 
-      if (typeof window !== "undefined") {
+      if(typeof window !== "undefined"){
 
 
-        const storedPlan =
+        const data =
           localStorage.getItem(
             "fitlog-plan"
           );
 
 
+        if(data){
 
-        if (storedPlan) {
-
-          return JSON.parse(
-            storedPlan
-          ) as Workout[];
+          return JSON.parse(data);
 
         }
 
@@ -90,7 +98,6 @@ export const WorkoutProvider = ({
 
 
       return [];
-
 
     });
 
@@ -105,21 +112,53 @@ export const WorkoutProvider = ({
     useState<Workout[]>(() => {
 
 
-      if (typeof window !== "undefined") {
+      if(typeof window !== "undefined"){
 
 
-        const storedSaved =
+        const data =
           localStorage.getItem(
             "fitlog-saved"
           );
 
 
+        if(data){
 
-        if (storedSaved) {
+          return JSON.parse(data);
 
-          return JSON.parse(
-            storedSaved
-          ) as Workout[];
+        }
+
+
+      }
+
+
+      return [];
+
+
+    });
+
+
+
+
+
+
+
+
+  const [done, setDone] =
+    useState<number[]>(() => {
+
+
+      if(typeof window !== "undefined"){
+
+
+        const data =
+          localStorage.getItem(
+            "fitlog-done"
+          );
+
+
+        if(data){
+
+          return JSON.parse(data);
 
         }
 
@@ -140,7 +179,7 @@ export const WorkoutProvider = ({
 
 
 
-  useEffect(() => {
+  useEffect(()=>{
 
 
     localStorage.setItem(
@@ -149,7 +188,7 @@ export const WorkoutProvider = ({
     );
 
 
-  }, [plan]);
+  },[plan]);
 
 
 
@@ -159,7 +198,7 @@ export const WorkoutProvider = ({
 
 
 
-  useEffect(() => {
+  useEffect(()=>{
 
 
     localStorage.setItem(
@@ -168,7 +207,26 @@ export const WorkoutProvider = ({
     );
 
 
-  }, [saved]);
+  },[saved]);
+
+
+
+
+
+
+
+
+
+  useEffect(()=>{
+
+
+    localStorage.setItem(
+      "fitlog-done",
+      JSON.stringify(done)
+    );
+
+
+  },[done]);
 
 
 
@@ -186,37 +244,31 @@ export const WorkoutProvider = ({
   ) => {
 
 
-
-    const alreadyAdded =
-      plan.find(
-        item => item.id === workout.id
+    const exists =
+      plan.some(
+        item=>item.id === workout.id
       );
 
 
-
-    if (alreadyAdded) {
-
-      return false;
-
-    }
-
-
-
-
-
-    if (plan.length >= 5) {
+    if(exists){
 
       return false;
 
     }
 
 
+
+    if(plan.length >= 5){
+
+      return false;
+
+    }
 
 
 
     setPlan(
-      previousPlan => [
-        ...previousPlan,
+      previous=>[
+        ...previous,
         workout
       ]
     );
@@ -227,7 +279,6 @@ export const WorkoutProvider = ({
 
 
   };
-
 
 
 
@@ -246,14 +297,13 @@ export const WorkoutProvider = ({
 
 
 
-    const alreadySaved =
-      saved.find(
-        item => item.id === workout.id
+    const exists =
+      saved.some(
+        item=>item.id === workout.id
       );
 
 
-
-    if (alreadySaved) {
+    if(exists){
 
       return false;
 
@@ -261,11 +311,9 @@ export const WorkoutProvider = ({
 
 
 
-
-
     setSaved(
-      previousSaved => [
-        ...previousSaved,
+      previous=>[
+        ...previous,
         workout
       ]
     );
@@ -288,17 +336,15 @@ export const WorkoutProvider = ({
 
 
 
-
   const removeFromPlan = (
-    id: number
-  ) => {
-
+    id:number
+  )=>{
 
 
     setPlan(
-      previousPlan =>
-        previousPlan.filter(
-          item => item.id !== id
+      previous=>
+        previous.filter(
+          item=>item.id !== id
         )
     );
 
@@ -317,16 +363,54 @@ export const WorkoutProvider = ({
 
 
   const removeFromSaved = (
-    id: number
-  ) => {
-
+    id:number
+  )=>{
 
 
     setSaved(
-      previousSaved =>
-        previousSaved.filter(
-          item => item.id !== id
+      previous=>
+        previous.filter(
+          item=>item.id !== id
         )
+    );
+
+
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+  const markAsDone = (
+    id:number
+  )=>{
+
+
+    setDone(
+      previous=>{
+
+
+        if(previous.includes(id)){
+
+          return previous;
+
+        }
+
+
+        return [
+          ...previous,
+          id
+        ];
+
+
+      }
     );
 
 
@@ -345,7 +429,6 @@ export const WorkoutProvider = ({
 
   return (
 
-
     <WorkoutContext.Provider
 
       value={{
@@ -353,6 +436,8 @@ export const WorkoutProvider = ({
         plan,
 
         saved,
+
+        done,
 
 
         addToPlan,
@@ -364,6 +449,10 @@ export const WorkoutProvider = ({
 
         removeFromSaved,
 
+
+        markAsDone,
+
+
       }}
 
     >
@@ -373,7 +462,6 @@ export const WorkoutProvider = ({
 
 
     </WorkoutContext.Provider>
-
 
   );
 
@@ -388,8 +476,10 @@ export const WorkoutProvider = ({
 
 
 
-export const useWorkout = () => {
 
+
+
+export const useWorkout = ()=>{
 
 
   const context =
@@ -399,7 +489,7 @@ export const useWorkout = () => {
 
 
 
-  if (!context) {
+  if(!context){
 
 
     throw new Error(
@@ -412,7 +502,6 @@ export const useWorkout = () => {
 
 
   return context;
-
 
 
 };
