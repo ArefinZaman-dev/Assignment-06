@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Workout } from "@/types/workout.type";
+import { workouts } from "@/data/workouts";
 
 
 const WorkoutDetails = async ({
@@ -11,55 +11,36 @@ const WorkoutDetails = async ({
   const { id } = await params;
 
 
-  const res = await fetch(
-    `https://api.abcz.workers.dev/api/fitlog/${id}`
+  const workout = workouts.find(
+    (item) => item.id === Number(id)
   );
 
 
-  if (!res.ok) {
+  if (!workout) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-bold">
+      <main className="container mx-auto px-4 py-20 text-center">
+
+        <h2 className="text-4xl font-black">
           Workout Not Found
         </h2>
 
-        <p className="mt-3 text-white/60">
+        <p className="mt-4 text-white/60">
           Unable to load workout data.
         </p>
-      </div>
+
+      </main>
     );
   }
-
-
-  const data = await res.text();
-
-
-  let workout: Workout;
-
-
-  try {
-    workout = JSON.parse(data);
-  } catch {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-bold">
-          Something went wrong
-        </h2>
-
-        <p className="mt-3 text-white/60">
-          Workout API is temporarily unavailable.
-        </p>
-      </div>
-    );
-  }
-
 
 
   return (
     <main className="container mx-auto px-4 py-16">
 
+
       <div className="grid gap-10 lg:grid-cols-2">
 
+
+        {/* IMAGE */}
 
         <div className="relative h-[500px] overflow-hidden rounded-3xl">
 
@@ -67,12 +48,15 @@ const WorkoutDetails = async ({
             src={workout.image}
             alt={workout.name}
             fill
+            sizes="(max-width:768px) 100vw, 50vw"
             className="object-cover"
           />
 
         </div>
 
 
+
+        {/* DETAILS */}
 
         <div>
 
@@ -89,13 +73,15 @@ const WorkoutDetails = async ({
 
 
 
+          {/* TAGS */}
+
           <div className="mt-6 flex flex-wrap gap-3">
 
             {
-              workout.muscleGroups.map((group) => (
+              workout.muscleGroups.map((group)=>(
                 <span
                   key={group}
-                  className="rounded-full bg-[#ccff00] px-4 py-2 text-sm font-bold text-black"
+                  className="rounded-full bg-[#ccff00] px-4 py-2 font-bold text-black"
                 >
                   {group}
                 </span>
@@ -107,12 +93,14 @@ const WorkoutDetails = async ({
 
 
 
+          {/* SPECS */}
+
           <div className="mt-8 rounded-2xl border border-white/10 p-6">
 
 
-            <h3 className="mb-5 text-2xl font-bold">
+            <h2 className="mb-5 text-2xl font-bold">
               KEY SPECS
-            </h3>
+            </h2>
 
 
 
@@ -177,30 +165,27 @@ const WorkoutDetails = async ({
 
             </div>
 
-
           </div>
 
 
 
 
+          {/* INSTRUCTIONS */}
+
           <div className="mt-8">
 
-
-            <h3 className="mb-4 text-2xl font-bold">
+            <h2 className="mb-4 text-2xl font-bold">
               INSTRUCTIONS
-            </h3>
+            </h2>
 
 
-            <ol className="space-y-3">
+            <ol className="space-y-3 text-white/70">
 
               {
                 workout.instructions.map(
-                  (step, index) => (
-                    <li
-                      key={step}
-                      className="text-white/70"
-                    >
-                      {index + 1}. {step}
+                  (step,index)=>(
+                    <li key={step}>
+                      {index+1}. {step}
                     </li>
                   )
                 )
@@ -214,21 +199,23 @@ const WorkoutDetails = async ({
 
 
 
+          {/* BUTTON */}
+
           <div className="mt-10 flex gap-4">
 
 
-            <button
-              className="rounded-full bg-[#ccff00] px-6 py-3 font-bold text-black"
-            >
-              Add to todays plan
+            <button className="rounded-full bg-[#ccff00] px-6 py-3 font-bold text-black">
+
+              Add to today's plan
+
             </button>
 
 
 
-            <button
-              className="rounded-full border border-white/20 px-6 py-3 font-bold"
-            >
+            <button className="rounded-full border border-white/20 px-6 py-3 font-bold">
+
               Save for later
+
             </button>
 
 
