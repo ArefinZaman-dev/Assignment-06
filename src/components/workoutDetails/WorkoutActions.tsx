@@ -13,7 +13,6 @@ import { useWorkout } from "@/context/WorkoutContext";
 
 
 
-
 const WorkoutActions = ({
   workout,
 }: {
@@ -21,7 +20,9 @@ const WorkoutActions = ({
 }) => {
 
 
+
   const {
+    plan,
     addToPlan,
     addToSaved,
   } = useWorkout();
@@ -41,6 +42,7 @@ const WorkoutActions = ({
 
     if (added) {
 
+
       toast.success(
         "Added to today's plan"
       );
@@ -49,16 +51,29 @@ const WorkoutActions = ({
     } else {
 
 
-      toast.warning(
-        "Workout already added or plan limit reached"
-      );
+      if (plan.length >= 5) {
+
+
+        toast.warning(
+          "You can add maximum 5 workouts"
+        );
+
+
+      } else {
+
+
+        toast.warning(
+          "Workout already added"
+        );
+
+
+      }
 
 
     }
 
 
   };
-
 
 
 
@@ -106,12 +121,18 @@ const WorkoutActions = ({
 
   return (
 
+
     <div className="mt-10 flex flex-wrap gap-4">
+
 
 
       <button
 
+        type="button"
+
         onClick={handleAddPlan}
+
+        disabled={plan.length >= 5}
 
         className="
         flex items-center gap-2
@@ -123,11 +144,15 @@ const WorkoutActions = ({
         text-black
         transition
         hover:scale-105
+        disabled:cursor-not-allowed
+        disabled:opacity-50
         "
 
       >
 
+
         <Dumbbell size={18} />
+
 
         Add to todays plan
 
@@ -141,6 +166,8 @@ const WorkoutActions = ({
 
 
       <button
+
+        type="button"
 
         onClick={handleSave}
 
@@ -158,7 +185,9 @@ const WorkoutActions = ({
 
       >
 
+
         <Bookmark size={18} />
+
 
         Save for later
 
@@ -169,6 +198,7 @@ const WorkoutActions = ({
 
 
     </div>
+
 
   );
 
